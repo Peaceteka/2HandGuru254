@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: secondhandguru
+      POSTGRES_USER: guru
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-guru}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guru -d secondhandguru"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://guru:${POSTGRES_PASSWORD:-guru}@db:5432/secondhandguru?schema=public
+    ports:
+      - "3000:3000"
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Runs the escrow scheduler (auto-release, expire unpaid orders, resend payouts) every 5 minutes.
+  scheduler:
+    image: curlimages/curl:8.10.1
+    restart: unless-stopped
+    env_file: .env
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - 'while true; do curl -fsS -X POST -H "Authorization: Bearer $$CRON_SECRET" http://app:3000/api/cron/escrow || true; echo; sleep 300; done'
+    depends_on:
+      - app
+
+  # One-off: docker compose --profile tools run --rm seed
+  seed:
+    build:
+      context: .
+      target: builder
+    profiles: ["tools"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://guru:${POSTGRES_PASSWORD:-guru}@db:5432/secondhandguru?schema=public
+      STORAGE_LOCAL_DIR: /app/uploads
+    volumes:
+      - uploads:/app/uploads
+    command: ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  uploads:
