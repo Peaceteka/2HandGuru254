@@ -63,6 +63,7 @@ See [`.env.example`](.env.example) for the full annotated list. Key ones:
 | `STORAGE_DRIVER` | `local` (./uploads) or `s3` (any S3-compatible: AWS, R2, MinIO, Spaces) |
 | `SMTP_*`, `EMAIL_FROM` | Email (logged to console when `SMTP_HOST` empty) |
 | `SMS_PROVIDER`, `AT_*` | `console` or `africastalking` |
+| `GURU_WHATSAPP_NUMBER` | WhatsApp number the "Ask Guru" product-page button opens (default `254797531419`) |
 
 ## M-Pesa Daraja sandbox
 

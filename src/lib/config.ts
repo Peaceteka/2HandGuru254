@@ -8,6 +8,7 @@ function bool(v: string | undefined, fallback = false) {
 export const config = {
   appUrl: (process.env.APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000").replace(/\/$/, ""),
   appName: "2ndHandGuru",
+  guruWhatsappNumber: (process.env.GURU_WHATSAPP_NUMBER || "254797531419").replace(/\D/g, ""),
   cronSecret: process.env.CRON_SECRET || "",
   escrow: {
     defaultCommissionPercent: Number(process.env.PLATFORM_COMMISSION_PERCENT ?? 5),

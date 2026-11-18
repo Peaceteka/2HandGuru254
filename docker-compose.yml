@@ -9,7 +9,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U guru -d secondhandguru"]
       interval: 5s
@@ -23,7 +23,7 @@ services:
     environment:
       DATABASE_URL: postgresql://guru:${POSTGRES_PASSWORD:-guru}@db:5432/secondhandguru?schema=public
     ports:
-      - "3000:3000"
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000"
     volumes:
       - uploads:/app/uploads
     depends_on:

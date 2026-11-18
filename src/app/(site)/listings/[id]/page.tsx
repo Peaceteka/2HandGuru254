@@ -11,6 +11,8 @@ import { CONDITION_LABELS } from "@/lib/constants";
 import { Gallery } from "@/components/gallery";
 import { SaveButton } from "@/components/save-button";
 import { BuyerProtection } from "@/components/buyer-protection";
+import { AskGuruButton, whatsappLink } from "@/components/ask-guru-button";
+import { config } from "@/lib/config";
 import { VerifiedBadge, EscrowBadge } from "@/components/badges";
 import { ListingCard, listingCardSelect } from "@/components/listing-card";
 import { Button } from "@/components/ui/button";
@@ -91,6 +93,11 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
               ) : isOwner ? (
                 <Button asChild variant="outline" className="w-full"><Link href={`/seller/listings/${listing.id}/edit`}>Edit listing</Link></Button>
               ) : null}
+              {!isOwner && (
+                <AskGuruButton
+                  href={whatsappLink(config.guruWhatsappNumber, `Hi Guru, I'm interested in "${listing.title}" (${formatKES(listing.price)}) on 2ndHandGuru: ${config.appUrl}/listings/${listing.id}`)}
+                />
+              )}
               {!isOwner && <SaveButton listingId={listing.id} initialSaved={saved} />}
             </div>
           </div>
@@ -102,7 +109,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
               {verified && <VerifiedBadge />}
               <span>Member since {formatMonthYear(listing.seller.createdAt)}</span>
             </div>
-            <p className="mt-3 text-xs text-neutral-600">Contact details are shared after payment is secured in escrow. Never pay a seller directly.</p>
+            <p className="mt-3 text-xs text-neutral-600">Questions about this item? Tap “Ask Guru on WhatsApp” and our team will help. Never pay a seller directly — always pay through escrow.</p>
           </div>
 
           <BuyerProtection autoReleaseDays={settings.autoReleaseDays} dispatchHours={settings.dispatchWindowHours} />
